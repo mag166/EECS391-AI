@@ -1,6 +1,5 @@
-package edu.cwru.sepia.agent;
-
 import edu.cwru.sepia.action.Action;
+import edu.cwru.sepia.agent.Agent;
 import edu.cwru.sepia.environment.model.history.History;
 import edu.cwru.sepia.environment.model.state.ResourceNode;
 import edu.cwru.sepia.environment.model.state.State;
@@ -11,16 +10,59 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.*;
 
-public class AstarAgent extends Agent {
+/**
+ * EECS 391
+ * Project 2
+ * AstarAgent Search Implementation
+ * @author Previn Kumar
+ * Group gardezi_kumar_391s17
+ */
+public class AstarAgentImp2 extends Agent {
 
     class MapLocation
     {
         public int x, y;
+        int cost;
+        MapLocation start;
+        MapLocation goal;
 
-        public MapLocation(int x, int y, MapLocation cameFrom, float cost)
+        public MapLocation(int x, int y, MapLocation start, int cost)
         {
             this.x = x;
             this.y = y;
+            this.cost = cost;
+            this.start = start;
+            this.goal = null;
+        }
+        
+        public MapLocation(int x, int y, int cost, MapLocation start, MapLocation goal)
+        {
+            this.x = x;
+            this.y = y;
+            this.cost = cost;
+            this.start = start;
+            this.goal = goal;
+        }
+        
+        public void setStart(MapLocation start) {
+        	this.start = start;
+        }
+        
+        public void setGoal(MapLocation goal) {
+        	this.goal = goal;
+        }
+        
+        @Override
+        public boolean equals(Object obj) {
+            if (obj == null) {
+                return false;
+            }
+            else if (!(obj instanceof MapLocation)) {
+                return false;
+            }
+            else {
+            	return this.x == ((MapLocation) obj).x && this.y == ((MapLocation) obj).y;
+            }
         }
     }
 
@@ -31,7 +73,7 @@ public class AstarAgent extends Agent {
     private long totalPlanTime = 0; // nsecs
     private long totalExecutionTime = 0; //nsecs
 
-    public AstarAgent(int playernum)
+    public AstarAgentImp2(int playernum)
     {
         super(playernum);
 
@@ -292,11 +334,131 @@ public class AstarAgent extends Agent {
      * @param yExtent Height of the map
      * @param resourceLocations Set of positions occupied by resources
      * @return Stack of positions with top of stack being first move in plan
+     * @author Previn Kumar
      */
     private Stack<MapLocation> AstarSearch(MapLocation start, MapLocation goal, int xExtent, int yExtent, MapLocation enemyFootmanLoc, Set<MapLocation> resourceLocations)
     {
-        // return an empty path
-        return new Stack<MapLocation>();
+    	PriorityQueue<MapLocation> open_nodes = new PriorityQueue<MapLocation>(locationDistance(start, goal), new HeuristicDistanceComparator());
+    	List<MapLocation> closed_nodes = new ArrayList<MapLocation>();
+    	start.setGoal(goal);
+    	start.setStart(null);
+    	open_nodes.add(start);
+    	
+    	while (!open_nodes.isEmpty()) {
+    		MapLocation location = open_nodes.poll();
+    		
+    		// return path is location is goal
+    		if (location.equals(goal)) {
+    			return generateSolutionPath(location);
+    		}
+    		
+    		Set<MapLocation> child_nodes = generateChildNodes(location, goal, xExtent, yExtent, resourceLocations);
+    		for (MapLocation child : child_nodes) {
+    			if (closed_nodes.contains(child)) {
+    				MapLocation node = closed_nodes.get(closed_nodes.indexOf(child));
+    				if (node.cost <= child.cost) {
+    					closed_nodes.add(child);
+    				}
+    				else {
+    					open_nodes.add(child);
+    				}
+    			}
+    			else {
+    				open_nodes.add(child);
+    			}
+    		}
+    		closed_nodes.add(location);
+    	}
+    	
+        // return null if there is no path to the townhall
+        return null;
+    }
+    
+    
+    /**
+     * A comparator class used to compare the values of potential child states
+     * @author Previn Kumar
+     */
+    private class HeuristicDistanceComparator implements Comparator<MapLocation> {
+
+		@Override
+		public int compare(MapLocation o1, MapLocation o2) {
+    		return estimatedDistanceToGoal(o1) - estimatedDistanceToGoal(o2);
+		}
+    }
+    
+    /**
+     * Returns the total estimated cost of a solution path through a node
+     */
+    private int estimatedDistanceToGoal(MapLocation node) {
+    	if (node == null || node.goal == null) {
+    		System.err.println("Attempting to estimate distance of node with null value");
+    	}
+    	return node.cost + chebyshev(node, node.goal);
+    }
+    
+    /**
+     * returns the total distance between two MapLocation objects
+     */
+    private int locationDistance(MapLocation start, MapLocation end) {
+    	return Math.abs(end.x - start.x) + Math.abs(end.y - start.y);
+    }
+    
+    /**
+     * Returns the Chebyshev distance estimation between two MapLocations
+     */
+    private int chebyshev(MapLocation start, MapLocation end) {
+    	int x_dist = Math.abs(end.x - start.x);
+    	int y_dist = Math.abs(end.y - start.y);
+    	
+    	return (x_dist > y_dist)? x_dist : y_dist;
+    }
+    
+    /**
+     * Generates the successor nodes of a given MapLocation
+     * Assumes the parent is a valid MapLocation
+     */
+    private Set<MapLocation> generateChildNodes(MapLocation parent, MapLocation goal, int xExtent, int yExtent, Set<MapLocation> resources) {
+    	Set<MapLocation> child_nodes = new HashSet<MapLocation>();
+    	if (parent.x - 1 >= 0 && validateNonResourceNode(parent.x - 1, parent.y, resources)) {
+    		child_nodes.add(new MapLocation(parent.x - 1, parent.y, parent.cost + 1, parent, goal));
+    	}
+    	if (parent.x + 1 < xExtent && validateNonResourceNode(parent.x + 1, parent.y, resources)) {
+    		child_nodes.add(new MapLocation(parent.x + 1, parent.y, parent.cost + 1, parent, goal));
+    	}
+    	if (parent.y - 1 >= 0 && validateNonResourceNode(parent.x, parent.y - 1, resources)) {
+    		child_nodes.add(new MapLocation(parent.x, parent.y - 1, parent.cost + 1, parent, goal));
+    	}
+    	if (parent.y + 1 < yExtent && validateNonResourceNode(parent.x, parent.y + 1, resources)) {
+    		child_nodes.add(new MapLocation(parent.x, parent.y + 1, parent.cost + 1, parent, goal));
+    	}
+    	return child_nodes;
+    }
+    
+    /**
+     * Validates that a potential MapLocation is not occupied by a resource node
+     */
+    private boolean validateNonResourceNode(int x, int y, Set<MapLocation> resources) {
+    	MapLocation potential_loc = new MapLocation(x, y, null, 1);
+    	boolean available = true;
+    	for (MapLocation resource : resources) {
+    		available = available && !(potential_loc.equals(resource));
+    	}
+    	return available;
+    }
+    
+    /**
+     * Creates a Stack of MapLocation objects from child to first parent with a null reference to parent
+     */
+    private Stack<MapLocation> generateSolutionPath(MapLocation deepest_child) {
+    	Stack<MapLocation> solution_path = new Stack<MapLocation>();
+    	solution_path.add(deepest_child);
+    	MapLocation child = deepest_child;
+    	while (child.start != null) {
+    		child = child.start;
+    		solution_path.add(child);
+    	}
+    	return solution_path;
     }
 
     /**
