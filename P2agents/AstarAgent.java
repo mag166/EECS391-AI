@@ -17,7 +17,7 @@ import java.util.*;
  * @author Previn Kumar
  * Group gardezi_kumar_391s17
  */
-public class AstarAgentImp2 extends Agent {
+public class AstarAgent extends Agent {
 
     class MapLocation
     {
@@ -73,7 +73,7 @@ public class AstarAgentImp2 extends Agent {
     private long totalPlanTime = 0; // nsecs
     private long totalExecutionTime = 0; //nsecs
 
-    public AstarAgentImp2(int playernum)
+    public AstarAgent(int playernum)
     {
         super(playernum);
 
