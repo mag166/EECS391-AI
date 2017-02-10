@@ -347,7 +347,7 @@ public class AstarAgent extends Agent {
     	while (!open_nodes.isEmpty()) {
     		MapLocation location = open_nodes.poll();
     		
-    		// return path is location is goal
+    		// return path if location is goal
     		if (location.equals(goal)) {
     			return generateSolutionPath(location);
     		}

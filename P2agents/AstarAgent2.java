@@ -11,13 +11,13 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.*;
 
-public class AstarAgent extends Agent {
+public class AstarAgent2 extends Agent {
     
     /**
      * EECS 391
      * Project 2
      * AstarAgent Search Implementation
-     * @author Previn Kumar
+     * @author Minhal Gardezi
      * Group gardezi_kumar_391s17
      */
     
@@ -57,7 +57,7 @@ public class AstarAgent extends Agent {
     private long totalPlanTime = 0; // nsecs
     private long totalExecutionTime = 0; //nsecs
     
-    public AstarAgent(int playernum)
+    public AstarAgent2(int playernum)
     {
         super(playernum);
         
