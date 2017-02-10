@@ -254,11 +254,10 @@ public class AstarAgent extends Agent {
      */
     private boolean shouldReplanPath(State.StateView state, History.HistoryView history, Stack<MapLocation> currentPath)
     {
-    	Unit.UnitView blockerFootman = state.getUnit(enemyFootmanID);
     	
     	//If this is a map without an enemyFootman
     	if(enemyFootmanID != -1){
-    	
+        	Unit.UnitView blockerFootman = state.getUnit(enemyFootmanID);
     		MapLocation enemyLoc = new MapLocation(blockerFootman.getXPosition(), blockerFootman.getYPosition(), null, 0);
     		if(currentPath.contains(enemyLoc))
     			return true;    
