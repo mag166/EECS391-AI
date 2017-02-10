@@ -15,6 +15,7 @@ import java.util.*;
  * Project 2
  * AstarAgent Search Implementation
  * @author Previn Kumar
+ * @author Minhal Gardezi
  * Group gardezi_kumar_391s17
  */
 public class AstarAgent extends Agent {
@@ -253,7 +254,16 @@ public class AstarAgent extends Agent {
      */
     private boolean shouldReplanPath(State.StateView state, History.HistoryView history, Stack<MapLocation> currentPath)
     {
-        return false;
+    	Unit.UnitView blockerFootman = state.getUnit(enemyFootmanID);
+    	
+    	//If this is a map without an enemyFootman
+    	if(enemyFootmanID != -1){
+    	
+    		MapLocation enemyLoc = new MapLocation(blockerFootman.getXPosition(), blockerFootman.getYPosition(), null, 0);
+    		if(currentPath.contains(enemyLoc))
+    			return true;    
+    	}
+    	return false;
     }
 
     /**
