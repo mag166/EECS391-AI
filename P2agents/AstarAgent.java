@@ -45,11 +45,11 @@ public class AstarAgent extends Agent {
         }
         
         public void setStart(MapLocation start) {
-        	this.start = start;
+            this.start = start;
         }
         
         public void setGoal(MapLocation goal) {
-        	this.goal = goal;
+            this.goal = goal;
         }
         
         @Override
@@ -61,7 +61,7 @@ public class AstarAgent extends Agent {
                 return false;
             }
             else {
-            	return this.x == ((MapLocation) obj).x && this.y == ((MapLocation) obj).y;
+                return this.x == ((MapLocation) obj).x && this.y == ((MapLocation) obj).y;
             }
         }
     }
@@ -338,38 +338,38 @@ public class AstarAgent extends Agent {
      */
     private Stack<MapLocation> AstarSearch(MapLocation start, MapLocation goal, int xExtent, int yExtent, MapLocation enemyFootmanLoc, Set<MapLocation> resourceLocations)
     {
-    	PriorityQueue<MapLocation> open_nodes = new PriorityQueue<MapLocation>(locationDistance(start, goal), new HeuristicDistanceComparator());
-    	List<MapLocation> closed_nodes = new ArrayList<MapLocation>();
-    	start.setGoal(goal);
-    	start.setStart(null);
-    	open_nodes.add(start);
-    	
-    	while (!open_nodes.isEmpty()) {
-    		MapLocation location = open_nodes.poll();
-    		
-    		// return path if location is goal
-    		if (location.equals(goal)) {
-    			return generateSolutionPath(location);
-    		}
-    		
-    		Set<MapLocation> child_nodes = generateChildNodes(location, goal, xExtent, yExtent, resourceLocations);
-    		for (MapLocation child : child_nodes) {
-    			if (closed_nodes.contains(child)) {
-    				MapLocation node = closed_nodes.get(closed_nodes.indexOf(child));
-    				if (node.cost <= child.cost) {
-    					closed_nodes.add(child);
-    				}
-    				else {
-    					open_nodes.add(child);
-    				}
-    			}
-    			else {
-    				open_nodes.add(child);
-    			}
-    		}
-    		closed_nodes.add(location);
-    	}
-    	
+        PriorityQueue<MapLocation> open_nodes = new PriorityQueue<MapLocation>(locationDistance(start, goal), new HeuristicDistanceComparator());
+        List<MapLocation> closed_nodes = new ArrayList<MapLocation>();
+        start.setGoal(goal);
+        start.setStart(null);
+        open_nodes.add(start);
+        
+        while (!open_nodes.isEmpty()) {
+            MapLocation location = open_nodes.poll();
+            
+            // return path is location is goal
+            if (location.equals(goal)) {
+                return generateSolutionPath(location);
+            }
+            
+            Set<MapLocation> child_nodes = generateChildNodes(location, goal, xExtent, yExtent, resourceLocations);
+            for (MapLocation child : child_nodes) {
+                if (closed_nodes.contains(child)) {
+                    MapLocation node = closed_nodes.get(closed_nodes.indexOf(child));
+                    if (node.cost <= child.cost) {
+                        closed_nodes.add(child);
+                    }
+                    else {
+                        open_nodes.add(child);
+                    }
+                }
+                else {
+                    open_nodes.add(child);
+                }
+            }
+            closed_nodes.add(location);
+        }
+        
         // return null if there is no path to the townhall
         return null;
     }
@@ -381,37 +381,37 @@ public class AstarAgent extends Agent {
      */
     private class HeuristicDistanceComparator implements Comparator<MapLocation> {
 
-		@Override
-		public int compare(MapLocation o1, MapLocation o2) {
-    		return estimatedDistanceToGoal(o1) - estimatedDistanceToGoal(o2);
-		}
+        @Override
+        public int compare(MapLocation o1, MapLocation o2) {
+            return estimatedDistanceToGoal(o1) - estimatedDistanceToGoal(o2);
+        }
     }
     
     /**
      * Returns the total estimated cost of a solution path through a node
      */
     private int estimatedDistanceToGoal(MapLocation node) {
-    	if (node == null || node.goal == null) {
-    		System.err.println("Attempting to estimate distance of node with null value");
-    	}
-    	return node.cost + chebyshev(node, node.goal);
+        if (node == null || node.goal == null) {
+            System.err.println("Attempting to estimate distance of node with null value");
+        }
+        return node.cost + chebyshev(node, node.goal);
     }
     
     /**
      * returns the total distance between two MapLocation objects
      */
     private int locationDistance(MapLocation start, MapLocation end) {
-    	return Math.abs(end.x - start.x) + Math.abs(end.y - start.y);
+        return Math.abs(end.x - start.x) + Math.abs(end.y - start.y);
     }
     
     /**
      * Returns the Chebyshev distance estimation between two MapLocations
      */
     private int chebyshev(MapLocation start, MapLocation end) {
-    	int x_dist = Math.abs(end.x - start.x);
-    	int y_dist = Math.abs(end.y - start.y);
-    	
-    	return (x_dist > y_dist)? x_dist : y_dist;
+        int x_dist = Math.abs(end.x - start.x);
+        int y_dist = Math.abs(end.y - start.y);
+        
+        return (x_dist > y_dist)? x_dist : y_dist;
     }
     
     /**
@@ -419,46 +419,48 @@ public class AstarAgent extends Agent {
      * Assumes the parent is a valid MapLocation
      */
     private Set<MapLocation> generateChildNodes(MapLocation parent, MapLocation goal, int xExtent, int yExtent, Set<MapLocation> resources) {
-    	Set<MapLocation> child_nodes = new HashSet<MapLocation>();
-    	if (parent.x - 1 >= 0 && validateNonResourceNode(parent.x - 1, parent.y, resources)) {
-    		child_nodes.add(new MapLocation(parent.x - 1, parent.y, parent.cost + 1, parent, goal));
-    	}
-    	if (parent.x + 1 < xExtent && validateNonResourceNode(parent.x + 1, parent.y, resources)) {
-    		child_nodes.add(new MapLocation(parent.x + 1, parent.y, parent.cost + 1, parent, goal));
-    	}
-    	if (parent.y - 1 >= 0 && validateNonResourceNode(parent.x, parent.y - 1, resources)) {
-    		child_nodes.add(new MapLocation(parent.x, parent.y - 1, parent.cost + 1, parent, goal));
-    	}
-    	if (parent.y + 1 < yExtent && validateNonResourceNode(parent.x, parent.y + 1, resources)) {
-    		child_nodes.add(new MapLocation(parent.x, parent.y + 1, parent.cost + 1, parent, goal));
-    	}
-    	return child_nodes;
+        Set<MapLocation> child_nodes = new HashSet<MapLocation>();
+        if (parent.x - 1 >= 0 && validateNonResourceNode(parent.x - 1, parent.y, resources)) {
+            child_nodes.add(new MapLocation(parent.x - 1, parent.y, parent.cost + 1, parent, goal));
+        }
+        if (parent.x + 1 < xExtent && validateNonResourceNode(parent.x + 1, parent.y, resources)) {
+            child_nodes.add(new MapLocation(parent.x + 1, parent.y, parent.cost + 1, parent, goal));
+        }
+        if (parent.y - 1 >= 0 && validateNonResourceNode(parent.x, parent.y - 1, resources)) {
+            child_nodes.add(new MapLocation(parent.x, parent.y - 1, parent.cost + 1, parent, goal));
+        }
+        if (parent.y + 1 < yExtent && validateNonResourceNode(parent.x, parent.y + 1, resources)) {
+            child_nodes.add(new MapLocation(parent.x, parent.y + 1, parent.cost + 1, parent, goal));
+        }
+        return child_nodes;
     }
     
     /**
      * Validates that a potential MapLocation is not occupied by a resource node
      */
     private boolean validateNonResourceNode(int x, int y, Set<MapLocation> resources) {
-    	MapLocation potential_loc = new MapLocation(x, y, null, 1);
-    	boolean available = true;
-    	for (MapLocation resource : resources) {
-    		available = available && !(potential_loc.equals(resource));
-    	}
-    	return available;
+        MapLocation potential_loc = new MapLocation(x, y, null, 1);
+        boolean available = true;
+        for (MapLocation resource : resources) {
+            available = available && !(potential_loc.equals(resource));
+        }
+        return available;
     }
     
     /**
      * Creates a Stack of MapLocation objects from child to first parent with a null reference to parent
      */
     private Stack<MapLocation> generateSolutionPath(MapLocation deepest_child) {
-    	Stack<MapLocation> solution_path = new Stack<MapLocation>();
-    	solution_path.add(deepest_child);
-    	MapLocation child = deepest_child;
-    	while (child.start != null) {
-    		child = child.start;
-    		solution_path.add(child);
-    	}
-    	return solution_path;
+        Stack<MapLocation> solution_path = new Stack<MapLocation>();
+        MapLocation child = null;
+        if (deepest_child != null && deepest_child.start != null) {
+            child = deepest_child.start;
+        }
+        while (child != null && child.start != null) {
+            solution_path.add(child);
+            child = child.start;
+        }
+        return solution_path;
     }
 
     /**
