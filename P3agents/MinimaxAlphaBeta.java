@@ -71,10 +71,77 @@ public class MinimaxAlphaBeta extends Agent {
      * @param alpha The current best value for the maximizing node from this node to the root
      * @param beta The current best value for the minimizing node from this node to the root
      * @return The best child of this node with updated values
+     * 
+     * @author Previn Kumar
      */
     public GameStateChild alphaBetaSearch(GameStateChild node, int depth, double alpha, double beta)
     {
-        return node;
+        double utility = maxValue(node, depth, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
+        GameState state = node.state;
+        List<GameStateChild> children = state.getChildren();
+        // find the child with the best utility
+        for (GameStateChild child : children) {
+            if (child.state.getUtility() == utility) {
+                return child;
+            }
+        }
+        return null;
+    }
+    
+    /**
+     * Recursive function to calculate the max utility value of a state
+     * @param state  Possible child state to examine
+     * @return The utility value of the state
+     * @author Previn Kumar
+     */
+    private double maxValue(GameStateChild node, int depth, double alpha, double beta) {
+        GameState state = node.state;
+        // returns node if at the depth limit or a goal
+        if (depth == 0 || state.isArcherAdjacent()) {
+            return node.state.getUtility();
+        }
+        double v = Double.NEGATIVE_INFINITY;
+        List<GameStateChild> children = state.getChildren();
+        // find the child with the best utility
+        for (GameStateChild child : children) {
+            double min = minValue(child, --depth, alpha, beta);
+            if (min > v) {
+                v = min;
+                if (v >= beta) {
+                    return v;
+                }
+                alpha = v > alpha ? v : alpha;
+            }
+        }
+        return v;
+    }
+    
+    /**
+     * Recursive function to calculate the min utility value of a state
+     * @param state  Possible child state to examine
+     * @return The utility value of the state
+     * @author Previn Kumar
+     */
+    private double minValue(GameStateChild node, int depth, double alpha, double beta) {
+        GameState state = node.state;
+        // returns node if at the depth limit or a goal
+        if (depth == 0 || state.isArcherAdjacent()) {
+            return node.state.getUtility();
+        }
+        double v = Double.POSITIVE_INFINITY;
+        List<GameStateChild> children = state.getChildren();
+        // find the child with the worst utility
+        for (GameStateChild child : children) {
+            double max = maxValue(child, --depth, alpha, beta);
+            if (max > v) {
+                v = max;
+                if (v <= alpha) {
+                    return v;
+                }
+                beta = v < beta? v : beta;
+            }
+        }
+        return v;
     }
 
     /**

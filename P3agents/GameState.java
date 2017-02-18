@@ -85,4 +85,12 @@ public class GameState {
     public List<GameStateChild> getChildren() {
         return null;
     }
+
+    /**
+     * Returns true if this node is adjacent to an Archer
+     * Not Implemented
+     */
+    public boolean isArcherAdjacent() {
+        return true;
+    }
 }
