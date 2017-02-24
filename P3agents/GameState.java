@@ -19,7 +19,19 @@ import java.util.*;
  * but do not delete or change the signatures of the provided methods.
  */
 public class GameState {
-
+    
+    private State.StateView state;
+    private double savedUtility;
+    private int myPlayerNum = 0;
+    private int enemyPlayerNum = -1;
+    private Integer[] playerNums;
+    // Lists of units
+    List<Integer> myUnitIds;
+    List<Integer> enemyUnitIds;
+    List<Integer> resourceIDs;
+    List<Integer> archerIds = new ArrayList<Integer>();
+    List<Integer> footmanIds = new ArrayList<Integer>();
+    
     /**
      * You will implement this constructor. It will
      * extract all of the needed state information from the built in
@@ -42,6 +54,54 @@ public class GameState {
      * @param state Current state of the episode
      */
     public GameState(State.StateView state) {
+        this.state = state;
+        playerNums = state.getPlayerNumbers();
+        myUnitIds = state.getUnitIds(playerNums[0]); //not sure if mine or enemy's yet
+        enemyUnitIds = state.getUnitIds(playerNums[1]);
+        resourceIDs = state.getAllResourceIds();
+        populateIdLists();
+    }
+    
+    /**
+     * Populates UnitId lists
+     * @author Previn Kumar
+     */
+    private void populateIdLists() {
+        // Classifies each unit ID as a Footman, or Archer
+        for(Integer unitID : myUnitIds) {
+            Unit.UnitView unit = state.getUnit(unitID);
+            String unitTypeName = unit.getTemplateView().getName();
+            if (unitTypeName.equals("Footman")) {
+                footmanIds.add(unitID);
+                myPlayerNum = playerNums[0];
+            }
+            else if (unitTypeName.equals("Archer")) {
+                archerIds.add(unitID);
+                enemyPlayerNum = playerNums[0];
+            }
+            else {
+                System.err.println("Unexpected Unit type: " + unitTypeName);
+            }
+        }
+        
+        for(Integer unitID : enemyUnitIds) {
+            Unit.UnitView unit = state.getUnit(unitID);
+            String unitTypeName = unit.getTemplateView().getName();
+            if (unitTypeName.equals("Footman")) {
+                footmanIds.add(unitID);
+                myPlayerNum = playerNums[1];
+            }
+            else if (unitTypeName.equals("Archer")) {
+                archerIds.add(unitID);
+                enemyPlayerNum = playerNums[1];
+            }
+            else {
+                System.err.println("Unexpected Unit type: " + unitTypeName);
+            }
+        }
+        
+        myUnitIds = state.getUnitIds(myPlayerNum);
+        enemyUnitIds = state.getUnitIds(enemyPlayerNum);
     }
 
     /**
@@ -65,6 +125,20 @@ public class GameState {
     public double getUtility() {
         return 0.0;
     }
+    
+    /**
+     * Returns the saved utility of the GameState
+     */
+    public double getSavedUtility() {
+        return savedUtility;
+    }
+    
+    /**
+     * Sets the saved utility
+     */
+    public void setSavedUtility(double util) {
+        savedUtility = util;
+    }
 
     /**
      * You will implement this function.
@@ -83,6 +157,8 @@ public class GameState {
      * @return All possible actions and their associated resulting game state
      */
     public List<GameStateChild> getChildren() {
+        
+        
         return null;
     }
 
@@ -91,6 +167,7 @@ public class GameState {
      * Not Implemented
      */
     public boolean isArcherAdjacent() {
+        //MapLocation goalLoc = new MapLocation(townhallUnit.getXPosition(), townhallUnit.getYPosition(), null, 0);
         return true;
     }
 }

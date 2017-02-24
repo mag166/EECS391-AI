@@ -80,15 +80,18 @@ public class MinimaxAlphaBeta extends Agent {
     }
     
     /**
-     * Recursive function to calculate the max utility value of a state
-     * @param state  Possible child state to examine
-     * @return The utility value of the state
+     * Recursive function to return the child with the max utility
+     * @param node The action and state to search from
+     * @param depth The remaining number of plys under this node
+     * @param alpha The current best value for the maximizing node from this node to the root
+     * @param beta The current best value for the minimizing node from this node to the root
+     * @return The max child of this node with updated values
      * @author Previn Kumar
      */
     private GameStateChild maxValue(GameStateChild node, int depth, double alpha, double beta) {
         GameState state = node.state;
         // returns node if at the depth limit or a goal
-        if (depth == 0 || state.isArcherAdjacent()) {
+        if (depth <= 0 || state.isArcherAdjacent()) {
             node.state.setSavedUtility(state.getUtility());
             return node;
         }
@@ -114,15 +117,18 @@ public class MinimaxAlphaBeta extends Agent {
     }
     
     /**
-     * Recursive function to calculate the min utility value of a state
-     * @param state  Possible child state to examine
-     * @return The utility value of the state
+     * Recursive function to return the child with the min utility
+     * @param node The action and state to search from
+     * @param depth The remaining number of plys under this node
+     * @param alpha The current best value for the maximizing node from this node to the root
+     * @param beta The current best value for the minimizing node from this node to the root
+     * @return The min child of this node with updated values
      * @author Previn Kumar
      */
     private GameStateChild minValue(GameStateChild node, int depth, double alpha, double beta) {
         GameState state = node.state;
         // returns node if at the depth limit or a goal
-        if (depth == 0 || state.isArcherAdjacent()) {
+        if (depth <= 0 || state.isArcherAdjacent()) {
             node.state.setSavedUtility(state.getUtility());
             return node;
         }
