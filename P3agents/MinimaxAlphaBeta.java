@@ -91,7 +91,7 @@ public class MinimaxAlphaBeta extends Agent {
     private GameStateChild maxValue(GameStateChild node, int depth, double alpha, double beta) {
         GameState state = node.state;
         // returns node if at the depth limit or a goal
-        if (depth <= 0 || state.isArcherAdjacent()) {
+        if (depth <= 0 || state.areArchersDead()) {
             node.state.setSavedUtility(state.getUtility());
             return node;
         }
@@ -128,7 +128,7 @@ public class MinimaxAlphaBeta extends Agent {
     private GameStateChild minValue(GameStateChild node, int depth, double alpha, double beta) {
         GameState state = node.state;
         // returns node if at the depth limit or a goal
-        if (depth <= 0 || state.isArcherAdjacent()) {
+        if (depth <= 0 || state.areArchersDead()) {
             node.state.setSavedUtility(state.getUtility());
             return node;
         }

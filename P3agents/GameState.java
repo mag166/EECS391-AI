@@ -23,8 +23,7 @@ public class GameState {
     private State.StateView state;
     private double savedUtility;
     private int myPlayerNum = 0;
-    private int enemyPlayerNum = -1;
-    private Integer[] playerNums;
+    private int enemyPlayerNum = 1;
     // Lists of units
     List<Integer> myUnitIds;
     List<Integer> enemyUnitIds;
@@ -55,53 +54,32 @@ public class GameState {
      */
     public GameState(State.StateView state) {
         this.state = state;
-        playerNums = state.getPlayerNumbers();
-        myUnitIds = state.getUnitIds(playerNums[0]); //not sure if mine or enemy's yet
-        enemyUnitIds = state.getUnitIds(playerNums[1]);
+        myUnitIds = state.getUnitIds(myPlayerNum);
+        enemyUnitIds = state.getUnitIds(enemyPlayerNum);
         resourceIDs = state.getAllResourceIds();
-        populateIdLists();
+        populateIdLists(myUnitIds);
+        populateIdLists(enemyUnitIds);
     }
     
     /**
      * Populates UnitId lists
      * @author Previn Kumar
      */
-    private void populateIdLists() {
+    private void populateIdLists(List<Integer> unitIds) {
         // Classifies each unit ID as a Footman, or Archer
-        for(Integer unitID : myUnitIds) {
+        for(Integer unitID : unitIds) {
             Unit.UnitView unit = state.getUnit(unitID);
             String unitTypeName = unit.getTemplateView().getName();
             if (unitTypeName.equals("Footman")) {
                 footmanIds.add(unitID);
-                myPlayerNum = playerNums[0];
             }
             else if (unitTypeName.equals("Archer")) {
                 archerIds.add(unitID);
-                enemyPlayerNum = playerNums[0];
             }
             else {
                 System.err.println("Unexpected Unit type: " + unitTypeName);
             }
         }
-        
-        for(Integer unitID : enemyUnitIds) {
-            Unit.UnitView unit = state.getUnit(unitID);
-            String unitTypeName = unit.getTemplateView().getName();
-            if (unitTypeName.equals("Footman")) {
-                footmanIds.add(unitID);
-                myPlayerNum = playerNums[1];
-            }
-            else if (unitTypeName.equals("Archer")) {
-                archerIds.add(unitID);
-                enemyPlayerNum = playerNums[1];
-            }
-            else {
-                System.err.println("Unexpected Unit type: " + unitTypeName);
-            }
-        }
-        
-        myUnitIds = state.getUnitIds(myPlayerNum);
-        enemyUnitIds = state.getUnitIds(enemyPlayerNum);
     }
 
     /**
@@ -157,17 +135,17 @@ public class GameState {
      * @return All possible actions and their associated resulting game state
      */
     public List<GameStateChild> getChildren() {
-        
+        for (Direction direction : Direction.values()) {
+            
+        }
         
         return null;
     }
 
     /**
-     * Returns true if this node is adjacent to an Archer
-     * Not Implemented
+     * Returns true if the archers are dead
      */
-    public boolean isArcherAdjacent() {
-        //MapLocation goalLoc = new MapLocation(townhallUnit.getXPosition(), townhallUnit.getYPosition(), null, 0);
-        return true;
+    public boolean areArchersDead() {
+        return archerIds.size() == 0;
     }
 }
