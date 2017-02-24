@@ -30,6 +30,9 @@ public class GameState {
     List<Integer> resourceIDs;
     List<Integer> archerIds = new ArrayList<Integer>();
     List<Integer> footmanIds = new ArrayList<Integer>();
+    private int xExtent;
+    private int yExtent;
+    private int turn;
     
     /**
      * You will implement this constructor. It will
@@ -59,6 +62,9 @@ public class GameState {
         resourceIDs = state.getAllResourceIds();
         populateIdLists(myUnitIds);
         populateIdLists(enemyUnitIds);
+        this.xExtent = state.getXExtent();
+        this.yExtent = state.getYExtent();
+        this.turn = state.getTurn;
     }
     
     /**
@@ -99,6 +105,7 @@ public class GameState {
      * Add a good comment about what is in your utility and why you chose those features.
      *
      * @return The weighted linear combination of the features
+     * @author Minhal Gardezi
      */
     public double getUtility() {
         return 0.0;
@@ -133,6 +140,7 @@ public class GameState {
      * y += direction.yComponent()
      *
      * @return All possible actions and their associated resulting game state
+     * @author Minhal Gardezi
      */
     public List<GameStateChild> getChildren() {
         for (Direction direction : Direction.values()) {
