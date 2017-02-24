@@ -108,6 +108,9 @@ public class GameState {
      * @author Minhal Gardezi
      */
     public double getUtility() {
+        for(int i: footmanIds){
+            
+        }
         return 0.0;
     }
     
