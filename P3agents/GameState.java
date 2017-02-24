@@ -1,15 +1,17 @@
 package edu.cwru.sepia.agent.minimax;
 
+
 import edu.cwru.sepia.action.Action;
 import edu.cwru.sepia.action.ActionType;
 import edu.cwru.sepia.action.DirectedAction;
 import edu.cwru.sepia.action.TargetedAction;
 import edu.cwru.sepia.environment.model.state.State;
 import edu.cwru.sepia.environment.model.state.Unit;
+import edu.cwru.sepia.environment.model.state.Unit.UnitView;
 import edu.cwru.sepia.util.Direction;
+import edu.cwru.sepia.util.DistanceMetrics;
 
 import java.util.*;
-
 /**
  * This class stores all of the information the agent
  * needs to know about the state of the game. For example this
@@ -64,7 +66,7 @@ public class GameState {
         populateIdLists(enemyUnitIds);
         this.xExtent = state.getXExtent();
         this.yExtent = state.getYExtent();
-        this.turn = state.getTurn;
+        this.turn = state.getTurnNumber();
     }
     
     /**
@@ -87,31 +89,51 @@ public class GameState {
             }
         }
     }
-
+    
     /**
-     * You will implement this function.
      *
-     * You should use weighted linear combination of features.
-     * The features may be primitives from the state (such as hp of a unit)
-     * or they may be higher level summaries of information from the state such
-     * as distance to a specific location. Come up with whatever features you think
-     * are useful and weight them appropriately.
      *
-     * It is recommended that you start simple until you have your algorithm working. Then watch
-     * your agent play and try to add features that correct mistakes it makes. However, remember that
-     * your features should be as fast as possible to compute. If the features are slow then you will be
-     * able to do less plys in a turn.
-     *
-     * Add a good comment about what is in your utility and why you chose those features.
+     * Calculate the utility based on total footmanHP, archerHP, number of footmen/archers,
+     *  number of trees blocking the footmen and average distance between footmen and nearest archer
      *
      * @return The weighted linear combination of the features
      * @author Minhal Gardezi
      */
     public double getUtility() {
+        
+        double footmanHP = 0;
+        double archerHP = 0;
+        //int treeUtil = 0;
+        int numFootman = footmanIds.size();
+        int numArcher = archerIds.size();
+        double averageDistance = 0;
+        
         for(int i: footmanIds){
+            footmanHP += state.getUnit(i).getHP()/state.getUnit(i).getTemplateView().getBaseHealth();
+            averageDistance += shortestDistance(i);
             
         }
-        return 0.0;
+        
+        for(int i: archerIds){
+            archerHP += state.getUnit(i).getHP()/state.getUnit(i).getTemplateView().getBaseHealth();
+        }
+        
+        
+        
+        return (footmanHP*2) + (archerHP*-2) + (numFootman*10) + (numArcher*-10) + (averageDistance*-3);
+    }
+    
+    public double shortestDistance(int footmanID){
+        UnitView footman = state.getUnit(footmanID);
+        double shortestDistance = Double.POSITIVE_INFINITY;
+        for(int a:archerIds){
+            UnitView archer = state.getUnit(a);
+            double distance = DistanceMetrics.euclideanDistance(footman.getXPosition(), footman.getYPosition(), archer.getXPosition(), archer.getYPosition());
+            if(distance < shortestDistance){
+                shortestDistance = distance;
+            }
+        }
+        return shortestDistance;
     }
     
     /**
@@ -127,7 +149,7 @@ public class GameState {
     public void setSavedUtility(double util) {
         savedUtility = util;
     }
-
+    
     /**
      * You will implement this function.
      *
@@ -152,7 +174,7 @@ public class GameState {
         
         return null;
     }
-
+    
     /**
      * Returns true if the archers are dead
      */
