@@ -100,7 +100,7 @@ public class GameState {
      * @author Minhal Gardezi
      */
     public double getUtility() {
-        
+        //Calculate information on the state to create utility
         double footmanHP = 0;
         double archerHP = 0;
         //int treeUtil = 0;
@@ -119,10 +119,11 @@ public class GameState {
         }
         
         
-        
+        //Calculate utility based on the calculated values multiplied by their associated weight
         return (footmanHP*2) + (archerHP*-2) + (numFootman*10) + (numArcher*-10) + (averageDistance*-3);
     }
     
+    //Function that calculates the distance between a footman and the closest archer.
     public double shortestDistance(int footmanID){
         UnitView footman = state.getUnit(footmanID);
         double shortestDistance = Double.POSITIVE_INFINITY;
