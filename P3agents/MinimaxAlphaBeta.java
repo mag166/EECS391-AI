@@ -76,16 +76,7 @@ public class MinimaxAlphaBeta extends Agent {
      */
     public GameStateChild alphaBetaSearch(GameStateChild node, int depth, double alpha, double beta)
     {
-        double utility = maxValue(node, depth, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
-        GameState state = node.state;
-        List<GameStateChild> children = state.getChildren();
-        // find the child with the best utility
-        for (GameStateChild child : children) {
-            if (child.state.getUtility() == utility) {
-                return child;
-            }
-        }
-        return null;
+        return maxValue(node, depth, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
     }
     
     /**
@@ -94,26 +85,32 @@ public class MinimaxAlphaBeta extends Agent {
      * @return The utility value of the state
      * @author Previn Kumar
      */
-    private double maxValue(GameStateChild node, int depth, double alpha, double beta) {
+    private GameStateChild maxValue(GameStateChild node, int depth, double alpha, double beta) {
         GameState state = node.state;
         // returns node if at the depth limit or a goal
         if (depth == 0 || state.isArcherAdjacent()) {
-            return node.state.getUtility();
+            node.state.setSavedUtility(state.getUtility());
+            return node;
         }
         double v = Double.NEGATIVE_INFINITY;
-        List<GameStateChild> children = state.getChildren();
+        List<GameStateChild> children = orderChildrenWithHeuristics(state.getChildren());
+        GameStateChild best_child = null;
         // find the child with the best utility
         for (GameStateChild child : children) {
-            double min = minValue(child, --depth, alpha, beta);
-            if (min > v) {
-                v = min;
+            GameStateChild min_child = minValue(child, --depth, alpha, beta);
+            // Pick a child with maximum utility
+            if (min_child.state.getSavedUtility() > v) {
+                v = min_child.state.getSavedUtility();
+                best_child = child;
+                best_child.state.setSavedUtility(v);
+                // prunes the rest of the nodes if >= beta
                 if (v >= beta) {
-                    return v;
+                    return best_child;
                 }
                 alpha = v > alpha ? v : alpha;
             }
         }
-        return v;
+        return best_child;
     }
     
     /**
@@ -122,26 +119,32 @@ public class MinimaxAlphaBeta extends Agent {
      * @return The utility value of the state
      * @author Previn Kumar
      */
-    private double minValue(GameStateChild node, int depth, double alpha, double beta) {
+    private GameStateChild minValue(GameStateChild node, int depth, double alpha, double beta) {
         GameState state = node.state;
         // returns node if at the depth limit or a goal
         if (depth == 0 || state.isArcherAdjacent()) {
-            return node.state.getUtility();
+            node.state.setSavedUtility(state.getUtility());
+            return node;
         }
         double v = Double.POSITIVE_INFINITY;
-        List<GameStateChild> children = state.getChildren();
-        // find the child with the worst utility
+        List<GameStateChild> children = orderChildrenWithHeuristics(state.getChildren());
+        GameStateChild best_child = null;
+        // find the child with the best utility
         for (GameStateChild child : children) {
-            double max = maxValue(child, --depth, alpha, beta);
-            if (max > v) {
-                v = max;
+            GameStateChild max_child = maxValue(child, --depth, alpha, beta);
+            // Pick the child with minimum utility
+            if (max_child.state.getSavedUtility() < v) {
+                v = max_child.state.getSavedUtility();
+                best_child = child;
+                best_child.state.setSavedUtility(v);
+                // prunes the rest of the nodes if <= beta
                 if (v <= alpha) {
-                    return v;
+                    return best_child;
                 }
-                beta = v < beta? v : beta;
+                beta = v < beta ? v : beta;
             }
         }
-        return v;
+        return best_child;
     }
 
     /**
