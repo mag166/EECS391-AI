@@ -96,7 +96,7 @@ public class MinimaxAlphaBeta extends Agent {
             return node;
         }
         double v = Double.NEGATIVE_INFINITY;
-        List<GameStateChild> children = orderChildrenWithHeuristics(state.getChildren());
+        List<GameStateChild> children = orderChildrenWithHeuristics(state.getChildren(0));
         GameStateChild best_child = null;
         // find the child with the best utility
         for (GameStateChild child : children) {
@@ -133,7 +133,7 @@ public class MinimaxAlphaBeta extends Agent {
             return node;
         }
         double v = Double.POSITIVE_INFINITY;
-        List<GameStateChild> children = orderChildrenWithHeuristics(state.getChildren());
+        List<GameStateChild> children = orderChildrenWithHeuristics(state.getChildren(1));
         GameStateChild best_child = null;
         // find the child with the best utility
         for (GameStateChild child : children) {

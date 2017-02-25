@@ -32,11 +32,11 @@ public class GameState {
     private int myPlayerNum = 0;
     private int enemyPlayerNum = 1;
     // Lists of units
-    List<Integer> myUnitIds;
-    List<Integer> enemyUnitIds;
-    List<Integer> resourceIDs;
-    List<Integer> archerIds = new ArrayList<Integer>();
-    List<Integer> footmanIds = new ArrayList<Integer>();
+    private List<Integer> myUnitIds;
+    private List<Integer> enemyUnitIds;
+    private List<Integer> resourceIDs;
+    private List<Integer> archerIds = new ArrayList<Integer>();
+    private List<Integer> footmanIds = new ArrayList<Integer>();
     private int xExtent;
     private int yExtent;
     private int turn;
@@ -170,8 +170,6 @@ public class GameState {
         savedUtility = util;
     }
     
-    
-    
     /**
      * You will implement this function.
      *
@@ -189,12 +187,50 @@ public class GameState {
      * @return All possible actions and their associated resulting game state
      * @author Minhal Gardezi
      */
-    public List<GameStateChild> getChildren() {
-        for (Direction direction : Direction.values()) {
-            
+    public List<GameStateChild> getChildren(int playerIdTurn) {
+        if (playerIdTurn == 0) {
+            return generatePossibleChildren(footmanIds, playerIdTurn);
         }
-        
-        return null;
+        else {
+            return generatePossibleChildren(archerIds, playerIdTurn);
+        }
+    }
+    
+    /**
+     * 
+     * @param unitIds Units to generate possible moves for
+     * @param playerTurn current playernumber
+     * @return List of child states
+     */
+    public List<GameStateChild> generatePossibleChildren(List<Integer> unitIds, int playerTurn) {
+        List<GameStateChild> child_states = new LinkedList<GameStateChild>();
+        int[] unit_locations = new int[4];
+        // Generate all combination of directional child states and one combination of direction and an attack move
+        for (Direction direction : Direction.values()) {
+            // Stores the new location of the unit
+            unit_locations[0] = state.getUnit(unitIds.get(0)).getXPosition() + direction.xComponent();
+            unit_locations[1] = state.getUnit(unitIds.get(0)).getYPosition() + direction.yComponent();
+            Map<Integer, Action> unit_actions = new HashMap<Integer, Action>();
+            // Adds the unit action to the action map
+            unit_actions.put(unitIds.get(0), Action.createPrimitiveMove(unitIds.get(0), direction));
+            // if there are two units get a combination of directional moves or unit1 moves and unit2 attacks
+            if (unitIds.size() == 2) {
+                for (Direction direction2 : Direction.values()) {
+                    // Stores the new location of the second unit
+                    unit_locations[2] = state.getUnit(unitIds.get(1)).getXPosition() + direction2.xComponent();
+                    unit_locations[3] = state.getUnit(unitIds.get(1)).getYPosition() + direction2.yComponent();
+                    Map<Integer, Action> sec_unit_actions = new HashMap<Integer, Action>();
+                    // Adds the unit action to the action map
+                    sec_unit_actions.put(unitIds.get(0), Action.createPrimitiveMove(unitIds.get(1), direction2));
+                    sec_unit_actions.putAll(unit_actions);
+                    child_states.add(new GameStateChild(sec_unit_actions, createState(unit_locations, playerTurn)));
+                }
+                Map<Integer, Action> sec_unit_actions = new HashMap<Integer, Action>();
+            }
+            // Add check for unit 2 to make and attack move while unit 1 moves
+        }
+        // Add check for unit 1 to attack while unit 2
+        return child_states;
     }
     
     /**
@@ -202,6 +238,7 @@ public class GameState {
      * @param unit_loc the location of the units that may have moved [u1 x, u1 y] or [u1 x, u1 y, u2 x, u2 y]
      * @param playerTurn  the playerNum of the player whose turn it is
      * @author Previn Kumar
+     * NOTE - NEED TO TRACK DAMAGE CHANGES
      */
     private GameState createState(int[] unit_locations, int playerTurn) {
         StateBuilder sBuilder = new StateBuilder();
@@ -295,7 +332,7 @@ public class GameState {
         newTemplate.setTimeCost(view.getTimeCost());
         return newTemplate;
     }
-    
+
     /**
      * Returns true if the archers are dead
      */
