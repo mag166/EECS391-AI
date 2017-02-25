@@ -96,39 +96,36 @@ public class GameState {
     }
     
     /**
-     *
+     *W
      *
      * Calculate the utility based on total footmanHP, archerHP, number of footmen/archers,
      *  number of trees blocking the footmen and average distance between footmen and nearest archer
-     *
+     * Each Utility has its own weight (ex. being adjacent to archers should make u attack)
      * @return The weighted linear combination of the features
      * @author Minhal Gardezi
      */
     public double getUtility() {
         //Calculate information on the state to create utility
-        double HP_Weight;
-        double ArcherHP_Weight;
-        double numFootman_Weight;
-        double numArcher_Weight;
-        double averageDistance_Weight;
-        double numAttacking_Weight;
-        
+        double HP_Weight = 15;
+        double ArcherHP_Weight = -25;
+        double numFootman_Weight = 10;
+        double numArcher_Weight = -10;
+        double averageDistance_Weight = -2;
+        double numAttacking_Weight = 20;
         
         
         
         int numAttacking  = 0;
         double footmanHP = 0;
         double archerHP = 0;
-        //int treeUtil = 0;
         int numFootman = footmanIds.size();
         int numArcher = archerIds.size();
         double averageDistance = 0;
         
         for(int i: footmanIds){
             footmanHP += state.getUnit(i).getHP()/state.getUnit(i).getTemplateView().getBaseHealth();
-            s
-            
-            averageDistance += shortestDistance(i);
+            double shortestDistance = shortestDistance(i);
+            averageDistance += shortestDistance;
             
         }
         
@@ -138,7 +135,11 @@ public class GameState {
         
         
         //Calculate utility based on the calculated values multiplied by their associated weight
-        return (footmanHP*2) + (archerHP*-2) + (numFootman*10) + (numArcher*-10) + (averageDistance*-3);
+        averageDistance /= footmanIds.size();
+        footmanHP /= footmanIds.size();
+        archerHP /= archerIds.size();
+        
+        return (footmanHP*HP_Weight) + (archerHP*ArcherHP_Weight) + (numFootman*numFootman_Weight) + (numArcher*numArcher_Weight) + (averageDistance*averageDistance_Weight);
     }
     
     //Function that calculates the distance between a footman and the closest archer.
@@ -170,7 +171,7 @@ public class GameState {
     }
     
     
-
+    
     /**
      * You will implement this function.
      *
@@ -294,7 +295,7 @@ public class GameState {
         newTemplate.setTimeCost(view.getTimeCost());
         return newTemplate;
     }
-
+    
     /**
      * Returns true if the archers are dead
      */
