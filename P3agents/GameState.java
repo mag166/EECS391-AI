@@ -106,6 +106,17 @@ public class GameState {
      */
     public double getUtility() {
         //Calculate information on the state to create utility
+        double HP_Weight;
+        double ArcherHP_Weight;
+        double numFootman_Weight;
+        double numArcher_Weight;
+        double averageDistance_Weight;
+        double numAttacking_Weight;
+        
+        
+        
+        
+        int numAttacking  = 0;
         double footmanHP = 0;
         double archerHP = 0;
         //int treeUtil = 0;
@@ -115,6 +126,8 @@ public class GameState {
         
         for(int i: footmanIds){
             footmanHP += state.getUnit(i).getHP()/state.getUnit(i).getTemplateView().getBaseHealth();
+            s
+            
             averageDistance += shortestDistance(i);
             
         }

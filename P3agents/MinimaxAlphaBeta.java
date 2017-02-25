@@ -161,6 +161,8 @@ public class MinimaxAlphaBeta extends Agent {
      * Use this function inside of your alphaBetaSearch method.
      *
      * Include a good comment about what your heuristics are and why you chose them.
+     * This Heuristic sorts our children based on the utility function defined in Gamestate. 
+     * See GameState.java for specifics on how utility is calculated.
      *
      * @param children
      * @return The list of children sorted by your heuristic.
@@ -168,12 +170,15 @@ public class MinimaxAlphaBeta extends Agent {
      */
     public List<GameStateChild> orderChildrenWithHeuristics(List<GameStateChild> children)
     {
+        //Return children if empty
         if(children.isEmpty()){
             return children;
         }
         
+        //Placeholder for comparisons
         GameStateChild holder;
         
+        //Do insertion Sort to sort child from Max to Min utility. Child with highest utility should be first
         for (int i = 1; i < children.size(); i++) {
             holder = children.get(i);
             int j = i - 1;
