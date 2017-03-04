@@ -108,10 +108,11 @@ public class GameState {
         //Calculate information on the state to create utility
         double HP_Weight = 15;
         double ArcherHP_Weight = -25;
-        double numFootman_Weight = 10;
-        double numArcher_Weight = -10;
+        double numFootman_Weight = 15;
+        double numArcher_Weight = -15;
         double averageDistance_Weight = -2;
         double numAttacking_Weight = 20;
+        double tree_Weight = -10;
         
         
         
@@ -120,14 +121,23 @@ public class GameState {
         double archerHP = 0;
         int numFootman = footmanIds.size();
         int numArcher = archerIds.size();
+        int numBlockingTrees = 0;
         double averageDistance = 0;
         
         for(int i: footmanIds){
             footmanHP += state.getUnit(i).getHP()/state.getUnit(i).getTemplateView().getBaseHealth();
             double shortestDistance = shortestDistance(i);
+            if(shortestDistance <= 1){
+                numAttacking++;
+            }
+            int closestArcher = closestArcher(i);
+            
+            
             averageDistance += shortestDistance;
+            numBlockingTrees += numTreesBlocking(i, closestArcher);
             
         }
+        
         
         for(int i: archerIds){
             archerHP += state.getUnit(i).getHP()/state.getUnit(i).getTemplateView().getBaseHealth();
@@ -139,7 +149,35 @@ public class GameState {
         footmanHP /= footmanIds.size();
         archerHP /= archerIds.size();
         
-        return (footmanHP*HP_Weight) + (archerHP*ArcherHP_Weight) + (numFootman*numFootman_Weight) + (numArcher*numArcher_Weight) + (averageDistance*averageDistance_Weight);
+        return (footmanHP*HP_Weight) + (archerHP*ArcherHP_Weight) + (numFootman*numFootman_Weight) + (numArcher*numArcher_Weight) + (averageDistance*averageDistance_Weight) + (numBlockingTrees*tree_Weight);
+    }
+    //Calculates number of trees between the archer and the footman diagonal. Will return the 0 if there is no tree within this diagonal and 1 if there is a tree
+    public int numTreesBlocking(int footmanID, int archerID){
+        UnitView footman = state.getUnit(footmanID);
+        UnitView archer = state.getUnit(archerID);
+        int x = footman.getXPosition();
+        int y = footman.getYPosition();
+        //Iterate throught the diagonal between the archer and the footman to check if a resource (Tree) is present in the diagonal.
+        while( x != archer.getXPosition() || y != archer.getYPosition()){
+            if(state.inBounds(x,y) && state.isResourceAt(x, y))
+                return 1;
+            if(x < archer.getXPosition()){
+                x++;
+            }
+            
+            else if(x > archer.getXPosition()){
+                x--;
+            }
+            
+            if(y < archer.getYPosition()){
+                x++;
+            }
+            
+            else if(x > archer.getYPosition()){
+                x--;
+            }
+        }
+        return 0;
     }
     
     //Function that calculates the distance between a footman and the closest archer.
@@ -154,6 +192,22 @@ public class GameState {
             }
         }
         return shortestDistance;
+    }
+    
+    public int closestArcher(int footmanID){
+        UnitView footman = state.getUnit(footmanID);
+        double shortestDistance = Double.POSITIVE_INFINITY;
+        int archerID = 0;
+        for(int a:archerIds){
+            UnitView archer = state.getUnit(a);
+            double distance = DistanceMetrics.euclideanDistance(footman.getXPosition(), footman.getYPosition(), archer.getXPosition(), archer.getYPosition());
+            if(distance < shortestDistance){
+                shortestDistance = distance;
+                archerID = a;
+                
+            }
+        }
+        return archerID;
     }
     
     /**
