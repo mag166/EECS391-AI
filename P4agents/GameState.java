@@ -98,8 +98,9 @@ public class GameState implements Comparable<GameState> {
      * @return true if the goal conditions are met in this instance of game state.
      */
     public boolean isGoal() {
-        // TODO: Implement me!
-        return false;
+    	int woodTotal = state.getResourceAmount(0, ResourceType.WOOD);
+    	int goldTotal = state.getResourceAmount(0, ResourceType.GOLD);
+    	return (requiredWood <= woodTotal) && (requiredGold <= goldTotal);
     }
     
     
