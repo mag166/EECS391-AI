@@ -35,6 +35,14 @@ public class GameState implements Comparable<GameState> {
 	private int playernum;
 	private int requiredGold;
 	private int requiredWood;
+    private int woodLeft;
+    private int goldLeft;
+    private int numPeasants;
+    private ArrayList<Integer> peasants;
+    private ArrayList<Integer> townhall;
+    private ArrayList<Integer> forest
+    
+    
 	private boolean buildPeasants;
 	
     /**
@@ -53,6 +61,25 @@ public class GameState implements Comparable<GameState> {
         this.requiredGold = requiredGold;
         this.requiredWood = requiredWood;
         this.buildPeasants = buildPeasants;
+        
+        this.numPeasants = 0;
+        for(int ID:state.getUnitIds(playernum)){
+            UnitView unit = state.getUnit(ID);
+            String type = unit.getTemplateView().getName().toLowerCase();
+            
+            if(type.equals("townhall")){
+                townhall.add(ID);
+            }
+            
+            if(type.equals("forest")){
+                forest.add(ID);
+            }
+            
+            if(type.equals("peasant")){
+                peasants.add(ID);
+            }
+        }
+        
     }
     
     /**
@@ -122,6 +149,7 @@ public class GameState implements Comparable<GameState> {
      */
     public List<GameState> generateChildren() {
         // TODO: Implement me!
+        List<GameState> children = new ArrayList<>();
         return null;
     }
 
@@ -159,8 +187,17 @@ public class GameState implements Comparable<GameState> {
      */
     @Override
     public int compareTo(GameState o) {
-        // TODO: Implement me!
-        return 0;
+        if(this.getCost() < o.getCost()){
+            return -1;
+        }
+        
+        else if(this.getCost() > o.getCost()){
+            return 1;
+        }
+        
+        else{
+            return true;
+        }
     }
 
     /**
@@ -171,8 +208,8 @@ public class GameState implements Comparable<GameState> {
      */
     @Override
     public boolean equals(Object o) {
-        // TODO: Implement me!
-        return false;
+        
+        return this.hashCode() == o.hashCode();
     }
 
     /**
