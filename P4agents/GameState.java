@@ -1,6 +1,7 @@
 package edu.cwru.sepia.agent.planner;
 
 import edu.cwru.sepia.agent.planner.actions.StripsAction;
+import edu.cwru.sepia.environment.model.state.ResourceType;
 import edu.cwru.sepia.environment.model.state.State;
 
 import java.util.List;
@@ -99,6 +100,17 @@ public class GameState implements Comparable<GameState> {
     public boolean isGoal() {
         // TODO: Implement me!
         return false;
+    }
+    
+    
+    /**
+     * @author Previn Kumar
+     * @return The difference in collected resources and required resources
+     */
+    public int heuristicDistanceToGoal() {
+    	int woodTotal = state.getResourceAmount(0, ResourceType.WOOD);
+    	int goldTotal = state.getResourceAmount(0, ResourceType.GOLD);
+    	return (requiredWood + requiredGold) - (woodTotal + goldTotal);
     }
 
     /**

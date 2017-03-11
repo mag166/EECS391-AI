@@ -9,9 +9,6 @@ import edu.cwru.sepia.environment.model.state.State;
 import java.io.*;
 import java.util.*;
 
-import AstarAgent.HeuristicDistanceComparator;
-import AstarAgent.MapLocation;
-
 /**
  * Created by Devin on 3/15/15.
  */
@@ -140,6 +137,9 @@ public class PlannerAgent extends Agent {
         public int compare(GameState o1, GameState o2) {
         	if ((o1 instanceof GameState) && (o2 instanceof GameState)) {
         		return o1.heuristicDistanceToGoal() - o2.heuristicDistanceToGoal();
+        	}
+        	else {
+        		throw new IllegalStateException("Attempted to add non GameState object to AStar Search Priority Queue");
         	}
         }
     }
