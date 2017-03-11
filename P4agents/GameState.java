@@ -1,5 +1,6 @@
 package edu.cwru.sepia.agent.planner;
 
+import edu.cwru.sepia.agent.planner.actions.StripsAction;
 import edu.cwru.sepia.environment.model.state.State;
 
 import java.util.List;
@@ -22,7 +23,13 @@ import java.util.List;
  * class/structure you use to represent actions.
  */
 public class GameState implements Comparable<GameState> {
-
+	
+	// The parent GameState of this GameState instance
+	private GameState parent;
+	
+	// The Strips Action taken to reach this state from the parent
+	private StripsAction action;
+	
     /**
      * Construct a GameState from a stateview object. This is used to construct the initial search node. All other
      * nodes should be constructed from the another constructor you create or by factory functions that you create.
@@ -35,6 +42,25 @@ public class GameState implements Comparable<GameState> {
      */
     public GameState(State.StateView state, int playernum, int requiredGold, int requiredWood, boolean buildPeasants) {
         // TODO: Implement me!
+    }
+    
+    /**
+     * Sets the parent of this GameState
+     */
+    public void setParent(GameState parent) {
+    	this.parent = parent;
+    }
+    
+    public GameState getParent() {
+    	return parent;
+    }
+    
+    public void setStripsActions(StripsAction action) {
+    	this.action = action;
+    }
+    
+    public StripsAction getStripsAction() {
+    	return action;
     }
 
     /**

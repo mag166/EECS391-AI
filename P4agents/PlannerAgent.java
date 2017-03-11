@@ -9,6 +9,9 @@ import edu.cwru.sepia.environment.model.state.State;
 import java.io.*;
 import java.util.*;
 
+import AstarAgent.HeuristicDistanceComparator;
+import AstarAgent.MapLocation;
+
 /**
  * Created by Devin on 3/15/15.
  */
@@ -89,10 +92,69 @@ public class PlannerAgent extends Agent {
      *
      * @param startState The state which is being planned from
      * @return The plan or null if no plan is found.
+     * @author Previn Kumar
      */
     private Stack<StripsAction> AstarSearch(GameState startState) {
-        // TODO: Implement me!
+    	PriorityQueue<GameState> open_nodes = new PriorityQueue<GameState>(locationDistance(start, goal), new HeuristicDistanceComparator());
+        List<GameState> closed_nodes = new ArrayList<GameState>();
+        //startState.setGoal(goal);
+        startState.setParent(null);
+        open_nodes.add(startState);
+        while (!open_nodes.isEmpty()) {
+            GameState planned_state = open_nodes.poll();
+            
+            // return path is location is goal
+            if (planned_state.isGoal()) {
+                return generateSolutionPath(planned_state);
+            }
+            
+            List<GameState> child_nodes = planned_state.generateChildren();
+            for (GameState child : child_nodes) {
+                if (closed_nodes.contains(child)) {
+                    GameState node = closed_nodes.get(closed_nodes.indexOf(child));
+                    if (node.getCost() <= child.getCost()) {
+                        closed_nodes.add(child);
+                    }
+                    else {
+                        open_nodes.add(child);
+                    }
+                }
+                else {
+                    open_nodes.add(child);
+                }
+            }
+            closed_nodes.add(planned_state);
+        }
+        
+        // return null if there is no path to the resource nodes
         return null;
+    }
+    
+
+    /**
+     * A comparator class used to compare the values of potential child states
+     * @author Previn Kumar
+     */
+    private class HeuristicDistanceComparator implements Comparator<GameState> {
+    	
+        @Override
+        public int compare(GameState o1, GameState o2) {
+        	// Maybe compare total collected resources
+            //return estimatedDistanceToGoal(o1) - estimatedDistanceToGoal(o2);
+        }
+    }
+    
+    /**
+     * Generates a Stack of StripsActions leading from the given goal state to original parent state
+     */
+    private Stack<StripsAction> generateSolutionPath(GameState goal) {
+    	Stack<StripsAction> actions = new Stack<StripsAction>();
+    	GameState state = goal;
+    	while (state.getParent() != null) {
+    		actions.push(state.getStripsAction());
+    		state = state.getParent();
+    	}
+    	return actions;
     }
 
     /**
