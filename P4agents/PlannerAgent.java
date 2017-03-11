@@ -95,9 +95,8 @@ public class PlannerAgent extends Agent {
      * @author Previn Kumar
      */
     private Stack<StripsAction> AstarSearch(GameState startState) {
-    	PriorityQueue<GameState> open_nodes = new PriorityQueue<GameState>(locationDistance(start, goal), new HeuristicDistanceComparator());
+    	PriorityQueue<GameState> open_nodes = new PriorityQueue<GameState>(startState.heuristicDistanceToGoal() / 100, new HeuristicDistanceComparator());
         List<GameState> closed_nodes = new ArrayList<GameState>();
-        //startState.setGoal(goal);
         startState.setParent(null);
         open_nodes.add(startState);
         while (!open_nodes.isEmpty()) {
@@ -139,8 +138,9 @@ public class PlannerAgent extends Agent {
     	
         @Override
         public int compare(GameState o1, GameState o2) {
-        	// Maybe compare total collected resources
-            //return estimatedDistanceToGoal(o1) - estimatedDistanceToGoal(o2);
+        	if ((o1 instanceof GameState) && (o2 instanceof GameState)) {
+        		return o1.heuristicDistanceToGoal() - o2.heuristicDistanceToGoal();
+        	}
         }
     }
     
