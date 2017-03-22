@@ -3,7 +3,9 @@ package edu.cwru.sepia.agent.planner;
 import edu.cwru.sepia.agent.planner.actions.StripsAction;
 import edu.cwru.sepia.environment.model.state.ResourceType;
 import edu.cwru.sepia.environment.model.state.State;
+import edu.cwru.sepia.environment.model.state.Unit.UnitView;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -40,7 +42,7 @@ public class GameState implements Comparable<GameState> {
     private int numPeasants;
     private ArrayList<Integer> peasants;
     private ArrayList<Integer> townhall;
-    private ArrayList<Integer> forest
+    private ArrayList<Integer> forest;
     
     
 	private boolean buildPeasants;
@@ -149,7 +151,7 @@ public class GameState implements Comparable<GameState> {
      */
     public List<GameState> generateChildren() {
         // TODO: Implement me!
-        List<GameState> children = new ArrayList<>();
+        List<GameState> children = new ArrayList<GameState>();
         return null;
     }
 
@@ -196,7 +198,7 @@ public class GameState implements Comparable<GameState> {
         }
         
         else{
-            return true;
+            return 1;
         }
     }
 
