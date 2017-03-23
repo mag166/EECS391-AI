@@ -167,10 +167,12 @@ public class GameState implements Comparable<GameState> {
      * @return The value estimated remaining cost to reach a goal state from this state.
      */
     public double heuristic() {
-        int woodTotal = state.getResourceAmount(0, ResourceType.WOOD);
-        int goldTotal = state.getResourceAmount(0, ResourceType.GOLD);
-        
-        return (requiredWood + requiredGold) - (woodTotal + goldTotal);
+    	int woodTotal = state.getResourceAmount(0, ResourceType.WOOD);
+    	int goldTotal = state.getResourceAmount(0, ResourceType.GOLD);
+    	int resourcesLeft = (requiredWood + requiredGold) - (woodTotal + goldTotal);
+    	int minMovesPerCollection = 3;
+    	int harvestAmount = 100;
+    	return getCost() + (resourcesLeft / harvestAmount) * minMovesPerCollection;
     }
     
     /**
@@ -225,17 +227,17 @@ public class GameState implements Comparable<GameState> {
      */
     @Override
     public int compareTo(GameState o) {
-        if(this.getCost() < o.getCost()){
-            return -1;
-        }
-        
-        else if(this.getCost() > o.getCost()){
-            return 1;
-        }
-        
-        else{
-            return 1;
-        }
+        int state1Estimate = (int)this.heuristic();
+    	int state2Estimate = (int)o.heuristic();
+    	if (state1Estimate == state2Estimate) {
+    		return 0;
+    	}
+    	else if (state1Estimate > state2Estimate) {
+    		return 1;
+    	}
+    	else {
+    		return -1;
+    	}
     }
 
     /**
