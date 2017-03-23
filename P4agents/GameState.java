@@ -35,6 +35,7 @@ public class GameState implements Comparable<GameState> {
     private StripsAction action;
     
     private State.StateView state;
+    private double cost;
     private int playernum;
     private int requiredGold;
     private int requiredWood;
@@ -66,6 +67,7 @@ public class GameState implements Comparable<GameState> {
         this.buildPeasants = buildPeasants;
         
         this.numPeasants = 0;
+        this.cost = 0;
         for(int ID:state.getUnitIds(playernum)){
             UnitView unit = state.getUnit(ID);
             String type = unit.getTemplateView().getName().toLowerCase();
@@ -88,6 +90,13 @@ public class GameState implements Comparable<GameState> {
         }
         
     }
+    
+    public GameState(GameState parentState, StripsAction action){
+        this(parentState.state, parentState.getPlayerNum(), parentState.getRequiredGold(), parentState.getRequiredWood(), parentState.buildPeasants);
+        numPeasants = parentState.peasants.size();
+        this.cost = parentState.cost;
+    }
+
     
     /**
      * Sets the parent of this GameState
@@ -203,8 +212,8 @@ public class GameState implements Comparable<GameState> {
      * @return The current cost to reach this goal
      */
     public double getCost() {
-        // TODO: Implement me!
-        return 0.0;
+        //Cost is maintained from parent to children and update during "apply" in stripsAction
+        return this.cost;
     }
 
     /**
