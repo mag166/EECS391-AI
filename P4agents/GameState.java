@@ -153,8 +153,14 @@ public class GameState implements Comparable<GameState> {
      * @return A list of the possible successor states and their associated actions
      */
     public List<GameState> generateChildren() {
-        // TODO: Implement me!
         List<GameState> children = new ArrayList<GameState>();
+        Unit.UnitView peasant = state.getUnit(peasants.get(0));
+        if (peasant.getCargoAmount() == 0) {
+            
+        }
+        else {
+            
+        }
         return null;
     }
 
@@ -162,17 +168,18 @@ public class GameState implements Comparable<GameState> {
      * Write your heuristic function here. Remember this must be admissible for the properties of A* to hold. If you
      * can come up with an easy way of computing a consistent heuristic that is even better, but not strictly necessary.
      *
-     * Add a description here in your submission explaining your heuristic.
+     * This heuristic calculates the number of collections remaining and assumes a minimum of three moves to harvest, move, deposit the resource
+     * 
      * @author Previn Kumar
      * @return The value estimated remaining cost to reach a goal state from this state.
      */
     public double heuristic() {
-    	int woodTotal = state.getResourceAmount(0, ResourceType.WOOD);
-    	int goldTotal = state.getResourceAmount(0, ResourceType.GOLD);
-    	int resourcesLeft = (requiredWood + requiredGold) - (woodTotal + goldTotal);
-    	int minMovesPerCollection = 3;
-    	int harvestAmount = 100;
-    	return getCost() + (resourcesLeft / harvestAmount) * minMovesPerCollection;
+        int woodTotal = state.getResourceAmount(0, ResourceType.WOOD);
+        int goldTotal = state.getResourceAmount(0, ResourceType.GOLD);
+        int resourcesLeft = (requiredWood + requiredGold) - (woodTotal + goldTotal);
+        int minMovesPerCollection = 3;
+        int harvestAmount = 100;
+        return (resourcesLeft / harvestAmount) * minMovesPerCollection;
     }
     
     /**
@@ -227,17 +234,17 @@ public class GameState implements Comparable<GameState> {
      */
     @Override
     public int compareTo(GameState o) {
-        int state1Estimate = (int)this.heuristic();
-    	int state2Estimate = (int)o.heuristic();
-    	if (state1Estimate == state2Estimate) {
-    		return 0;
-    	}
-    	else if (state1Estimate > state2Estimate) {
-    		return 1;
-    	}
-    	else {
-    		return -1;
-    	}
+        int state1Estimate = (int)(this.getCost() + this.heuristic());
+        int state2Estimate = (int)(o.getCost() + o.heuristic());
+        if (state1Estimate == state2Estimate) {
+            return 0;
+        }
+        else if (state1Estimate > state2Estimate) {
+            return 1;
+        }
+        else {
+            return -1;
+        }
     }
 
     /**
