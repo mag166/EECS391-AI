@@ -1,6 +1,6 @@
 package edu.cwru.sepia.agent.planner;
 
-import edu.cwru.sepia.action.Action;
+import edu.cwru.sepia.action.*;
 import edu.cwru.sepia.agent.Agent;
 import edu.cwru.sepia.agent.planner.actions.*;
 import edu.cwru.sepia.environment.model.history.History;
@@ -29,12 +29,15 @@ public class PEAgent extends Agent {
     private Map<Integer, Integer> peasantIdMap;
     private int townhallId;
     private int peasantTemplateId;
+	private int requiredGold;
+    private int requiredWood;
 
-    public PEAgent(int playernum, Stack<StripsAction> plan) {
+    public PEAgent(int playernum, Stack<StripsAction> plan, int wood, int gold) {
         super(playernum);
         peasantIdMap = new HashMap<Integer, Integer>();
         this.plan = plan;
-
+        requiredWood = wood;
+        requiredGold = gold;
     }
 
     @Override
@@ -95,8 +98,38 @@ public class PEAgent extends Agent {
      */
     @Override
     public Map<Integer, Action> middleStep(State.StateView stateView, History.HistoryView historyView) {
-        // TODO: Implement me!
-        return null;
+    	long startTime = System.nanoTime();
+        long planTime = 0;
+        
+        Map<Integer, Action> actions = new HashMap<Integer, Action>();
+        
+        if (stateView.getTurnNumber() != 0) {
+            Map<Integer, ActionResult> actionResults = historyView.getCommandFeedback(playernum, stateView.getTurnNumber() - 1);
+            for (ActionResult result : actionResults.values()) {
+            	if (result.getFeedback() == ActionFeedback.COMPLETED) {
+            		if (!plan.isEmpty()) {
+            			StripsAction stripsAction = plan.pop();
+            			if (stripsAction.preconditionsMet(new GameState(stateView, playernum, requiredWood, requiredGold, false))) {
+            				actions.put(peasantIdMap.get(peasantTemplateId), createSepiaAction(plan.pop()));
+            				return actions;
+            			}
+            			else {
+            				System.err.println("Error: plan preconditions not met");
+            			}
+            		}
+            		else {
+            			System.err.println("Error: No more actions in plan");
+            		}
+            	}
+            	else {
+            		return actions;
+            	}
+            }
+        }
+        
+        long totalExecutionTime = System.nanoTime() - startTime - planTime;
+        
+        return actions;
     }
 
     /**
