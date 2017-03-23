@@ -52,7 +52,7 @@ public class PlannerAgent extends Agent {
 
 
         // Instantiates the PEAgent with the specified plan.
-        peAgent = new PEAgent(playernum, plan);
+        peAgent = new PEAgent(playernum, plan, requiredWood, requiredGold);
 
         return peAgent.initialStep(stateView, historyView);
     }
