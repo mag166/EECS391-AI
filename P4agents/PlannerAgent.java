@@ -92,18 +92,17 @@ public class PlannerAgent extends Agent {
      * @author Previn Kumar
      */
     private Stack<StripsAction> AstarSearch(GameState startState) {
-    	PriorityQueue<GameState> open_nodes = new PriorityQueue<GameState>(startState.heuristicDistanceToGoal() / 100, new HeuristicDistanceComparator());
+        PriorityQueue<GameState> open_nodes = new PriorityQueue<GameState>(startState.heuristicDistanceToLocation() * 10, new HeuristicDistanceComparator());
         List<GameState> closed_nodes = new ArrayList<GameState>();
         startState.setParent(null);
         open_nodes.add(startState);
         while (!open_nodes.isEmpty()) {
             GameState planned_state = open_nodes.poll();
             
-            // return path is location is goal
+            // return path if location is goal
             if (planned_state.isGoal()) {
                 return generateSolutionPath(planned_state);
             }
-            
             List<GameState> child_nodes = planned_state.generateChildren();
             for (GameState child : child_nodes) {
                 if (closed_nodes.contains(child)) {
@@ -129,18 +128,26 @@ public class PlannerAgent extends Agent {
 
     /**
      * A comparator class used to compare the values of potential child states
+     * First compares distance in total resources collected and if that's equal, compares distance to target
      * @author Previn Kumar
      */
     private class HeuristicDistanceComparator implements Comparator<GameState> {
-    	
+        
         @Override
         public int compare(GameState o1, GameState o2) {
-        	if ((o1 instanceof GameState) && (o2 instanceof GameState)) {
-        		return o1.heuristicDistanceToGoal() - o2.heuristicDistanceToGoal();
-        	}
-        	else {
-        		throw new IllegalStateException("Attempted to add non GameState object to AStar Search Priority Queue");
-        	}
+            if ((o1 instanceof GameState) && (o2 instanceof GameState)) {
+                int state1Resources = (int)o1.heuristic();
+                int state2Resources = (int)o2.heuristic();
+                if (state1Resources == state2Resources) {
+                    return o2.heuristicDistanceToLocation() - o1.heuristicDistanceToLocation(); //prefer state with shortest distance to goal
+                }
+                else {
+                    return state1Resources - state2Resources; //prefer state with more resources collected
+                }
+            }
+            else {
+                throw new IllegalStateException("Attempted to add non GameState object to AStar Search Priority Queue");
+            }
         }
     }
     
@@ -148,13 +155,13 @@ public class PlannerAgent extends Agent {
      * Generates a Stack of StripsActions leading from the given goal state to original parent state
      */
     private Stack<StripsAction> generateSolutionPath(GameState goal) {
-    	Stack<StripsAction> actions = new Stack<StripsAction>();
-    	GameState state = goal;
-    	while (state.getParent() != null) {
-    		actions.push(state.getStripsAction());
-    		state = state.getParent();
-    	}
-    	return actions;
+        Stack<StripsAction> actions = new Stack<StripsAction>();
+        GameState state = goal;
+        while (state.getParent() != null) {
+            actions.push(state.getStripsAction());
+            state = state.getParent();
+        }
+        return actions;
     }
 
     /**
