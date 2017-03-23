@@ -43,7 +43,7 @@ public class GameState implements Comparable<GameState> {
     private int goldLeft;
     private int numPeasants;
     private ArrayList<Integer> peasants;
-    private ArrayList<Integer> townhall;
+    private ArrayList<Integer> townhalls;
     private ArrayList<Integer> forests;
     private ArrayList<Integer> mines;
     
@@ -73,7 +73,7 @@ public class GameState implements Comparable<GameState> {
             String type = unit.getTemplateView().getName().toLowerCase();
             
             if(type.equals("townhall")){
-                townhall.add(ID);
+                townhalls.add(ID);
             }
             
             if(type.equals("forest")){
@@ -155,13 +155,30 @@ public class GameState implements Comparable<GameState> {
     public List<GameState> generateChildren() {
         List<GameState> children = new ArrayList<GameState>();
         Unit.UnitView peasant = state.getUnit(peasants.get(0));
-        if (peasant.getCargoAmount() == 0) {
+        Unit.UnitView townhall = state.getUnit(townhalls.get(0));
+        Position peasantPos = new Position(peasant.getXPosition(), peasant.getYPosition());
+        Position townhallPos = new Position(townhall.getXPosition(), townhall.getYPosition());
+        // Create state for each adjacent empty position
+        for (Position adjPos : peasantPos.getAdjacentPositions()) {
+            if (adjPos.inBounds(state.getXExtent(), state.getYExtent()) && !state.isUnitAt(adjPos.x, adjPos.y)) {
+                if (!state.isResourceAt(adjPos.x, adjPos.y)) {
+                    //Create StripsAction to move to this position
+                    //Apply StripsAction to GameState
+                }
+                else {
+                    if (peasant.getCargoAmount() == 0) {
+                        // Create Resource Collection action on resource
+                    }
+                }
+            }
             
+            if (peasantPos.isAdjacent(townhallPos)) {
+                if (peasant.getCargoAmount() > 0) {
+                    // Create StripsAction to deposit Cargo in townhall
+                }
+            }
         }
-        else {
-            
-        }
-        return null;
+        return children;
     }
 
     /**
@@ -199,7 +216,7 @@ public class GameState implements Comparable<GameState> {
             }
         }
         else {
-            return distanceToNearestUnitInList(peasantPos, townhall);
+            return distanceToNearestUnitInList(peasantPos, townhalls);
         }
     }
     
